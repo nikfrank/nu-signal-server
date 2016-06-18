@@ -22,16 +22,15 @@ io.on('connection', function(socket){
 
   socket.on('list-rooms', ()=> socket.emit('room-list', hosts));
 
-  socket.on('offer-to-room', ({room, offer, candidate})=>{
+  socket.on('offer-to-room', ({room, offer, candidate, dcLabel})=>{
     io.to(room.hostId).emit('offer-to-host', {
-      room, offer, candidate, patronId:socket.id
+      room, offer, candidate, patronId:socket.id, dcLabel
     });
   });
 
 
   socket.on('answer-to-patron', ({answer, patronId})=>{
     io.to(patronId).emit('answer-to-offerer', answer);
-    console.log(patronId, answer);
   });
   
   socket.on('icecandidate', data=>{
