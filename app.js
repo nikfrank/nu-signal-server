@@ -7,6 +7,7 @@ let rooms = {};
 let offers = {};
 let answers = {};
 
+let hosts = {};
 
 io.on('connection', function(socket){
   console.log('a user connected');
@@ -14,8 +15,19 @@ io.on('connection', function(socket){
   socket.on('disconnect', socket=>
     console.log('a user disconnected'));
 
-  socket.on('icecandidate', data=>{
+  socket.on('create-room', roomSpec=>{
+    hosts[roomSpec.name] = {name:roomSpec.name, hostId:socket.id};
+    io.sockets.emit('room-list', hosts);
+  });
 
+  socket.on('list-rooms', ()=> socket.emit('room-list', hosts));
+
+  socket.on('offer-to-room', ({room, offer})=>{
+    io.to(room.hostId).emit('offer-to-host', offer);
+  });
+
+  
+  socket.on('icecandidate', data=>{
     if(data.room in rooms) return;
 
     data.hostId = socket.id;
@@ -27,20 +39,17 @@ io.on('connection', function(socket){
 
 
   socket.on('offer', data=>{
-
     console.log('offer', socket.id, data);
-    if(data.room in offers){
-      return;
+    if(data.room in offers) return;
       
-    }else{
+    else{
       offers[data.room] = data;
 
 
       socket.broadcast
-//      io.to(rooms[data.room].hostId)
+      //      io.to(rooms[data.room].hostId)
 	.emit('offer', offers[data.room]);
     }
-    
   });
 
   socket.on('answer', data=>{
