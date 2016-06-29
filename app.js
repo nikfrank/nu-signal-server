@@ -22,9 +22,9 @@ io.on('connection', function(socket){
 
   socket.on('list-rooms', ()=> socket.emit('room-list', hosts));
 
-  socket.on('offer-to-room', ({room, offer, candidate, dcLabel})=>{
+  socket.on('offer-to-room', ({room, offer, candidate, dcLabel, userData})=>{
     io.to(room.hostId).emit('offer-to-host', {
-      room, offer, candidate, patronId:socket.id, dcLabel
+      room, offer, candidate, patronId:socket.id, dcLabel, userData
     });
   });
 
